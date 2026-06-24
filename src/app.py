@@ -78,6 +78,13 @@ activities = {
 }
 
 
+def normalize_and_validate_email(email: str) -> str:
+    normalized_email = email.strip()
+    if not normalized_email or "@" not in normalized_email or any(ch in normalized_email for ch in ["<", ">", '"', "'"]):
+        raise HTTPException(status_code=400, detail="Invalid email address")
+    return normalized_email
+
+
 @app.get("/")
 def root():
     return RedirectResponse(url="/static/index.html")
@@ -98,9 +105,7 @@ def signup_for_activity(activity_name: str, email: str):
     # Get the specific activity
     activity = activities[activity_name]
 
-    email = email.strip()
-    if not email or "@" not in email or any(ch in email for ch in ["<", ">", '"', "'"]):
-        raise HTTPException(status_code=400, detail="Invalid email address")
+    email = normalize_and_validate_email(email)
 
     # Validate student is not already signed up
     if email in activity["participants"]:
@@ -121,9 +126,7 @@ def unregister_from_activity(activity_name: str, email: str):
     # Get the specific activity
     activity = activities[activity_name]
 
-    email = email.strip()
-    if not email or "@" not in email or any(ch in email for ch in ["<", ">", '"', "'"]):
-        raise HTTPException(status_code=400, detail="Invalid email address")
+    email = normalize_and_validate_email(email)
 
     # Validate student is currently signed up
     if email not in activity["participants"]:
