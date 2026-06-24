@@ -20,23 +20,31 @@ document.addEventListener("DOMContentLoaded", () => {
         activityCard.className = "activity-card";
 
         const spotsLeft = details.max_participants - details.participants.length;
+        const escapeHtml = (value) =>
+          String(value).replace(
+            /[&<>"']/g,
+            (ch) =>
+              ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch])
+          );
+
         const participantsList = details.participants.length
           ? details.participants
-              .map(
-                (participant) => `
+              .map((participant) => {
+                const safeParticipant = escapeHtml(participant);
+                return `
                   <li class="participant-item">
-                    <span class="participant-email">${participant}</span>
+                    <span class="participant-email">${safeParticipant}</span>
                     <button
                       type="button"
                       class="delete-participant-btn"
                       data-activity="${encodeURIComponent(name)}"
                       data-email="${encodeURIComponent(participant)}"
-                      aria-label="Unregister ${participant}"
-                      title="Unregister ${participant}"
+                      aria-label="Unregister ${safeParticipant}"
+                      title="Unregister ${safeParticipant}"
                     >&#128465;</button>
                   </li>
-                `
-              )
+                `;
+              })
               .join("")
           : '<li class="participant-item participant-empty">No participants yet</li>';
 
