@@ -117,6 +117,10 @@ def unregister_from_activity(activity_name: str, email: str):
     # Get the specific activity
     activity = activities[activity_name]
 
+    email = email.strip()
+    if not email or "@" not in email or any(ch in email for ch in ["<", ">", '"', "'"]):
+        raise HTTPException(status_code=400, detail="Invalid email address")
+
     # Validate student is currently signed up
     if email not in activity["participants"]:
         raise HTTPException(status_code=404, detail="Student not signed up for this activity")
